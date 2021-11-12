@@ -1,0 +1,71 @@
+1. Props (Properties):
+
+  A- in the Module.js & receiving file, eg. (App.js)
+
+      // Component in Module.js with prop(property)
+
+      *- Add "props" as the Module.js function's argument, eg. ("Header")
+
+      const Header = (props) =>{}
+
+      **- Add props.props' name, to where we want it to show eg. ({props.title}) 
+
+      const Header = (props) =>{
+        <h1>{props.title}</h1>
+      }
+
+      // Component in receiving file (App.js)
+
+      <Header title="Hello" />
+
+  B- Creating a default prop
+
+      // Component in Module.js with prop(property)
+
+      *- Add the defaultProps to the file
+
+      Header.defaultProps = {
+      title: 'Task Tracker',
+      }
+
+      // Component in receiving file
+      
+      **- in this way only the component is imported to the receiving file with no props mentioned. if a prop is declared in the receiving file, it'll write over the default.
+
+  C- Creating by propTypes
+
+     // Component in Module.js with prop(property)
+    
+    *- Must import PropTypes
+
+     import PropTypes from 'prop-types'
+
+    **- Destructure const Header = (props) to its individual Properties
+
+    const Header = ({title}) => {
+
+      ***- // And in the h1 props.title will change to just title
+
+      <h1>{title}</h1>
+
+    }
+
+    ****- Add the object
+
+     Header.propTypes = {
+       title: PropTypes.string
+     }
+
+     if required should add isRequired
+
+     *****- Receiving remains the same as B 
+
+     const Header = (props) => {
+      return (
+        <header>
+          <h1>{props.title}</h1>
+        </header>
+      )
+    }
+
+    export default Header
