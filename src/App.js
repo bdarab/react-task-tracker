@@ -1,58 +1,98 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import Tasks from './components/Tasks'
 import AddTask from './components/AddTask'
 
 function App() {
   const [showAddTask, setShowAddTask] = useState(false)
-  const [tasks, setTasks] = useState([
+  const [tasks, setTasks] = useState([])
 
-    {
-      id: 1,
-      text: 'Grocery Shopping',
-      day: 'November 4th at 10:00am',
-      reminder: true,
-    },
-    {
-      id: 2,
-      text: 'School Meeting',
-      day: 'November 5th at 4:00pm',
-      reminder: true,
-    },
-    {
-      id: 3,
-      text: 'Town hall Election',
-      day: 'November 8th at 9:00am',
-      reminder: false,
-    },
-  ])
+  // Connect to DB
 
-  // Add Task
-  const addTask = (task) => {
-    const id = Math.floor(Math.random() * 10000) + 1
-    const newTask = { id, ...task }
-    setTasks([...tasks, newTask])
+  useEffect(() => {
+    const getTasks = async () => {
+      const tasksFromServer = await fetchTasks()
+      setTasks(tasksFromServer)
+    }
+    getTasks()
+  }, [])
+
+  // Fetch Tasks From db.json
+
+  const fetchTasks = async () => {
+    const res = await fetch('http://localhost:5000/tasks')
+    const data = await res.json()
+
+    return data
   }
 
-  // Delete Task Function to be Passed as a Prop
-  const deleteTask = (id) => {
+  // Fetch Task From db.json
+
+  const fetchTask = async (id) => {
+    const res = await fetch(`http://localhost:5000/tasks/${id}`)
+    const data = await res.json()
+
+    return data
+  }
+
+  // Add Task
+  const addTask = async (task) => {
+    const res = await fetch('http://localhost:5000/tasks', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(task)
+    })
+
+    const data = await res.json()
+    setTasks([...tasks, data])
+    // const id = Math.floor(Math.random() * 10000) + 1
+    // const newTask = { id, ...task }
+    // setTasks([...tasks, newTask])
+  }
+
+
+  const deleteTask = async (id) => {
+
+    // Delete Data from db.json
+    await fetch(`http://localhost:5000/tasks/${id}`, {
+      method: 'DELETE'
+    })
+
+    // Delete Task Function to be Passed as a Prop
     setTasks(tasks.filter((task) =>
       task.id !== id
     ))
   }
 
-  // Toggle Reminder Function to be Passed as a Prop
-  const toggleReminder = (id) => {
+
+  const toggleReminder = async (id) => {
+    // Toggle Reminder in DB
+    const taskToToggle = await fetchTask(id)
+    const updatedTask = { ...taskToToggle, reminder: !taskToToggle.reminder }
+
+    const res = await fetch(`http://localhost:5000/tasks/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(updatedTask)
+    })
+
+    const data = await res.json()
+
+    // Toggle Reminder Function to be Passed as a Prop
     setTasks(
       tasks.map((task) =>
-        task.id === id ? { ...task, reminder: !task.reminder } : task
+        task.id === id ? { ...task, reminder: data.reminder } : task
       )
     )
   }
 
   return (
     <div className="container">
-      <Header onAdd={() => setShowAddTask(!showAddTask)} showAdd={showAddTask}  />
+      <Header onAdd={() => setShowAddTask(!showAddTask)} showAdd={showAddTask} />
       {showAddTask && <AddTask onAdd={addTask} />}
       {/* passing as props to Tasks.js & Task.js */}
       {tasks.length > 0 ? (
