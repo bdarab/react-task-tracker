@@ -4,7 +4,7 @@
       "id": 1,
       "text": "Grocery Shopping",
       "day": "November 4th at 10:00am",
-      "reminder": false
+      "reminder": true
     },
     {
       "text": "Go to Work",
